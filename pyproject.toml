@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hsd"
+version = "1.0.0"
+description = "Hate speech detection: a calibrated TF-IDF ensemble with word and character n-grams, an evaluation harness, and a FastAPI inference service."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Parth Sojitra", email = "psojitraswe@gmail.com" }]
+
+[project.scripts]
+hsd-train = "hsd.train:main"
+hsd-predict = "hsd.predict:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

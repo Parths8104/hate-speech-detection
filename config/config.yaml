@@ -1,0 +1,53 @@
+# Central configuration for the hate speech detection pipeline.
+# Every script reads from here, so experiments are reproducible and diffable.
+
+seed: 42
+
+data:
+  path: data/dataset.csv      # CSV with a text column and a label column
+  text_column: text
+  label_column: label
+  test_size: 0.2
+  # Optional cap for fast local runs; null = use the full dataset.
+  sample_size: null
+
+preprocess:
+  lowercase: true
+  strip_urls: true
+  strip_mentions: true
+  strip_hashtags: false       # keep the token, drop only the '#'
+  collapse_repeats: true      # "soooo" -> "soo" (obfuscation is common in abuse)
+  min_token_len: 1
+
+features:
+  word:
+    ngram_range: [1, 2]
+    min_df: 3
+    max_features: 50000
+    sublinear_tf: true
+  char:
+    # Character n-grams catch misspellings and deliberate obfuscation
+    # (e.g. "h@te", "id10t") that word n-grams miss.
+    ngram_range: [2, 5]
+    min_df: 3
+    max_features: 50000
+    sublinear_tf: true
+
+model:
+  # Soft-voting ensemble; weights favor the linear models that dominate
+  # on sparse high-dimensional TF-IDF features.
+  weights: [2, 2, 1]          # [logreg, calibrated_linear_svc, random_forest]
+  logreg:
+    C: 1.0
+    max_iter: 2000
+  linear_svc:
+    C: 1.0
+  random_forest:
+    n_estimators: 300
+    max_depth: null
+    n_jobs: -1
+
+train:
+  cv_folds: 5
+  grid_search: false          # set true to tune C over a small grid
+  artifact_dir: models

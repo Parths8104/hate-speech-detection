@@ -1,0 +1,36 @@
+# Smoke-test config: runs the full pipeline end-to-end on the tiny bundled
+# sample so you can verify the install in seconds. Not for real metrics.
+seed: 42
+data:
+  path: data/sample.csv
+  text_column: text
+  label_column: label
+  test_size: 0.3
+  sample_size: null
+preprocess:
+  lowercase: true
+  strip_urls: true
+  strip_mentions: true
+  strip_hashtags: false
+  collapse_repeats: true
+  min_token_len: 1
+features:
+  word:
+    ngram_range: [1, 2]
+    min_df: 1
+    max_features: 5000
+    sublinear_tf: true
+  char:
+    ngram_range: [2, 4]
+    min_df: 1
+    max_features: 5000
+    sublinear_tf: true
+model:
+  weights: [2, 2, 1]
+  logreg: { C: 1.0, max_iter: 2000 }
+  linear_svc: { C: 1.0 }
+  random_forest: { n_estimators: 100, max_depth: null, n_jobs: -1 }
+train:
+  cv_folds: 3
+  grid_search: false
+  artifact_dir: models
