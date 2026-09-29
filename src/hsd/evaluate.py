@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
+    average_precision_score,
     classification_report,
     confusion_matrix,
     f1_score,
@@ -27,6 +28,35 @@ def compute_metrics(y_true, y_pred) -> dict:
         "f1_macro": round(float(f1_score(y_true, y_pred, average="macro", zero_division=0)), 4),
         "f1_weighted": round(float(f1_score(y_true, y_pred, average="weighted", zero_division=0)), 4),
     }
+
+def compute_pr_auc(y_true, y_score, labels: list[str]) -> dict:
+    """One-vs-rest PR-AUC for each class plus an unweighted macro average."""
+    y_true = np.asarray(y_true)
+    y_score = np.asarray(y_score)
+
+    if y_score.ndim != 2 or y_score.shape[1] != len(labels):
+        raise ValueError("y_score must have one probability column per label")
+
+    per_class = {}
+
+    for index, label in enumerate(labels):
+        y_binary = (y_true == label).astype(int)
+        per_class[label] = float(
+            average_precision_score(y_binary, y_score[:, index])
+        )
+
+    metrics = {
+        "pr_auc_macro": round(float(np.mean(list(per_class.values()))), 4),
+    }
+
+    metrics.update(
+        {
+            f"pr_auc_{label}": round(score, 4)
+            for label, score in per_class.items()
+        }
+    )
+
+    return metrics
 
 
 def per_class_report(y_true, y_pred, labels: list[str]) -> dict:
