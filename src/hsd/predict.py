@@ -28,7 +28,7 @@ class Predictor:
             proba = self.pipeline.predict_proba([text])[0]
             classes = list(self.pipeline.classes_)
             result["scores"] = {
-                c: round(float(p), 4) for c, p in zip(classes, proba)
+                c: round(float(p), 4) for c, p in zip(classes, proba, strict=True)
             }
             result["confidence"] = round(float(max(proba)), 4)
         return result
