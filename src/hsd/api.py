@@ -47,11 +47,10 @@ def predict(req: PredictRequest) -> PredictResponse:
     try:
         predictor = get_predictor()
     except FileNotFoundError as exc:
-    raise HTTPException(
-        status_code=503,
-        detail="Model not loaded. Train one first (python -m hsd.train).",
-    ) 
-    from exc
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Train one first (python -m hsd.train).",
+        ) from exc
     result = predictor.predict(req.text)
     return PredictResponse(
         label=result["label"],
