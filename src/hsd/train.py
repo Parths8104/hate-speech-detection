@@ -21,6 +21,7 @@ from hsd.data import build_dataset
 from hsd.evaluate import (
     baseline_majority_f1,
     compute_metrics,
+    compute_pr_auc,
     per_class_report,
     save_confusion_matrix,
 )
@@ -72,13 +73,19 @@ def main() -> None:
 
     print("[4/5] Evaluating on held-out test set...")
     y_pred = pipeline.predict(ds.X_test)
+    y_score = pipeline.predict_proba(ds.X_test)
+    score_labels = list(pipeline.classes_)
+
     metrics = compute_metrics(ds.y_test, y_pred)
+    metrics.update(compute_pr_auc(ds.y_test, y_score, score_labels))
+
     baseline_f1 = baseline_majority_f1(ds.y_train, ds.y_test)
     metrics["cv_f1_macro_mean"] = round(float(cv_scores.mean()), 4)
     metrics["cv_f1_macro_std"] = round(float(cv_scores.std()), 4)
     metrics["baseline_majority_f1_macro"] = baseline_f1
     metrics["lift_over_baseline_f1_macro"] = round(metrics["f1_macro"] - baseline_f1, 4)
     metrics["fit_seconds"] = fit_seconds
+
     for k, v in metrics.items():
         print(f"      {k:32s} {v}")
 
