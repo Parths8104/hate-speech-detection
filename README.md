@@ -13,8 +13,7 @@ Three decisions drive the whole system, each recorded as an ADR in `docs/decisio
 
 1. **Word + character n-grams.** Abusive text is adversarial. Users misspell and obfuscate (`h@te`, `stoopid`, `id10t`), and word features miss it. Character n-grams (`char_wb`, 2-5) catch sub-word patterns that survive obfuscation and generalize across spelling variation. ([ADR-0001](docs/decisions/0001-char-and-word-ngrams.md))
 2. **Calibrated soft-voting ensemble.** Logistic regression and a linear SVC are strong on sparse TF-IDF; a random forest adds non-linear signal. LinearSVC is wrapped in `CalibratedClassifierCV` so it can contribute calibrated probabilities to soft voting and to confidence scores at serving time. ([ADR-0002](docs/decisions/0002-soft-voting-ensemble.md))
-3. **Evaluation is part of the system.** Macro F1 is the headline metric (not accuracy, which is misleading on imbalanced data), reported next to a majority-class baseline so the lift is honest. Every training run writes `metrics.json`, a per-class report, and a confusion matrix.
-
+3. **Evaluation is part of the system.** Macro F1 is the headline metric (not accuracy, which is misleading on imbalanced data), reported next to a majority-class baseline so the lift is honest. Every training run writes `metrics.json`, a per-class report, and a confusion matrix. ([ADR-0003](docs/decisions/0003-macro-f1-headline-metric.md))
 ## Architecture
 
 ```mermaid
